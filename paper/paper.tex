@@ -241,8 +241,17 @@ We test the hand-coded model on 2{,}087 cases spanning six tiers:
 \end{table}
 
 The model achieves 100\% on all structured programs and 100\% on random single-step tests.
-The 45 failures in Tier~5 are from error accumulation over 200 iterative steps on random programs---since the model is applied in a loop (output fed back as input), any per-step rounding imprecision in floating-point arithmetic compounds over many steps.
 Single-step accuracy is perfect.
+
+\paragraph{Floating-point error accumulation in Tier~5.}
+The 45 failures in Tier~5 deserve careful explanation: they are \emph{not} model errors in the usual sense.
+The hand-coded transformer implements exact integer SUBLEQ using float32 arithmetic---ReLU-based step functions, hat functions for content-addressed lookup, and binary MUX operations.
+For any \emph{single} step, the floating-point precision is more than sufficient: Tier~4 confirms 100\% accuracy on 1{,}200 random states.
+However, when the model is applied iteratively (output fed back as input for up to 200 steps), tiny per-step imprecisions accumulate.
+A value that should be exactly \texttt{42} may become \texttt{41.99997} after one pass; after dozens of passes, the accumulated error can cross a rounding threshold in a comparison or branch decision, causing the wrong branch to be taken.
+
+This is a fundamental limitation of the \emph{constructed} approach: it encodes exact integer arithmetic using approximate floating-point operations.
+The \emph{trained} model (Round~2) does not suffer from this problem because it learns representations that are self-consistent under its own noise---an argument that learned representations can be more robust than manually engineered ones, even when the engineered solution is provably correct in exact arithmetic.
 
 Notably, the bubble sort programs use \emph{self-modifying SUBLEQ code}---the program writes memory addresses into its own instruction fields at runtime to index into arrays, since SUBLEQ has no indirect addressing.
 The $n = 8$ case runs for 1{,}099 steps, and the $n = 10$ case (tested outside the formal suite) runs for 2{,}380 steps, all executed correctly.
