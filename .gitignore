@@ -1,0 +1,28 @@
+# Checkpoints (except committed model)
+round2_trained/checkpoints/*
+!round2_trained/checkpoints/best_model.pt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# LaTeX build artifacts
+tectonic
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.synctex.gz
+
+# IDE
+.vscode/
+.idea/
