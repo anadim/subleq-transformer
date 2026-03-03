@@ -2,7 +2,11 @@
 
 Two independent approaches to making a standard transformer execute a Turing-complete computer — one with **hand-coded weights** (no training), one **learned from data** (no hand-coding).
 
-Both work. Both achieve 100% accuracy on structured programs.
+Both work. Both achieve 100% single-step accuracy and near-perfect multi-step generalization.
+
+<p align="center">
+  <img src="subleq_demo.gif" alt="Transformer executing multiply(7,9) = 63" width="700">
+</p>
 
 ## What is SUBLEQ?
 
@@ -102,6 +106,10 @@ A standard transformer **trained from scratch** on single-step SUBLEQ state tran
 
 **Training data composition**: 60% random single-step pairs + 40% execution traces (negate, addition, countdown, multiply, random programs). No multi-step programs like Fibonacci, division, or square root appear in training — these are emergent.
 
+<p align="center">
+  <img src="fig1_training_curve.png" alt="Training curve with curriculum phases" width="700">
+</p>
+
 ### Test Results
 
 **Single-step accuracy** (3,682 held-out states after filtering halts):
@@ -127,6 +135,10 @@ A standard transformer **trained from scratch** on single-step SUBLEQ state tran
 | **Total** | **786** | | **99.5%** | |
 
 The longest correct computation: isqrt(100) = 10, requiring **61 consecutive correct steps** with zero errors.
+
+<p align="center">
+  <img src="fig3_multiplication_table.png" alt="12x12 multiplication table — 141/141 correct" width="600">
+</p>
 
 ### Usage
 
@@ -199,6 +211,10 @@ subleq-transformer/
 - 782/786 multi-step test instances correct overall (99.5%)
 
 **Width > Depth**: The wide model (d=256, 6 layers, 4.9M params) achieves 100% while a deep model (d=128, 12 layers, 2.4M params) plateaus at 74.8%. Information routing bandwidth (d_head) is the bottleneck, not computational depth.
+
+<p align="center">
+  <img src="fig2_width_vs_depth.png" alt="Width dominates depth for SUBLEQ execution" width="650">
+</p>
 
 ## Citation
 
