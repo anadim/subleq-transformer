@@ -156,6 +156,10 @@ python play.py               # Interactive REPL
 
 ## Quickstart
 
+**Try it now** — no install needed: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/anadim/subleq-transformer/blob/main/subleq_transformer_demo.ipynb)
+
+Or run locally:
+
 ```bash
 git clone https://github.com/anadim/subleq-transformer.git
 cd subleq-transformer
