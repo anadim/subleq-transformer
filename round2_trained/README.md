@@ -1,6 +1,6 @@
 # Round 2: Trained SUBLEQ Transformer
 
-A 4.9M-parameter transformer **trained from scratch** to execute SUBLEQ — then it generalizes to run programs (Fibonacci, multiplication, division, square root) it never saw during training.
+A 4.9M-parameter transformer **trained from scratch** to execute SUBLEQ — then it generalizes to run programs (Fibonacci, multiplication, division, square root) it never saw executed as full programs during training.
 
 ## Architecture
 
@@ -60,45 +60,31 @@ In a 33-position sequence, only ~2 positions change per step (PC and the modifie
 
 ## Results
 
-### Single-Step Accuracy (4,000 held-out states)
+### Single-Step Accuracy (3,682 held-out states after filtering halts)
 
 | Instructions | Full accuracy | Changed-position accuracy |
 |---|---|---|
-| 1 | 100.0% | 100.0% |
-| 2 | 100.0% | 100.0% |
-| 3 | 100.0% | 100.0% |
-| 4 | 100.0% | 100.0% |
-| 5 | 100.0% | 100.0% |
-| 6 | 100.0% | 100.0% |
-| 7 | 100.0% | 100.0% |
-| 8 | 99.8% | 100.0% |
-| **Overall** | **99.97%** | **100.0%** |
+| 1-8 (all) | **100.0%** | **100.0%** |
 
-**All errors are copy errors** (unchanged cells get wrong value), never computation errors. The model has learned the complete SUBLEQ algorithm — subtract, compare, branch — with 100% accuracy on the positions that require computation.
-
-### Error Analysis
-
-- 2 errors out of 4,000 test states (both on 8-instruction programs)
-- Error pattern: unchanged cell outputs 0 instead of correct value (information routing failure)
-- No cell has a statistically significant error rate — errors appear random
-- Per-step error rate: ~0.05% → a 91-step program has >95% success probability
+Zero errors across all instruction counts. The model has learned the complete SUBLEQ algorithm — subtract, compare, branch — with perfect accuracy.
 
 ### Multi-Step Program Execution
 
-Programs marked with † were **never in training data** — these are emergent capabilities.
+Programs marked with † were **never in training data in any form**. Multiply single-step transitions appear in training traces, but the model never sees a full multiply program executed.
 
-| Program | Cases | Max steps | Accuracy |
-|---------|-------|-----------|----------|
-| Negate | 201 | 3 | 100% |
-| Addition | 300 | 4 | 100% |
-| Countdown (1–20) | 20 | 39 | 100% |
-| Multiply† | 141 | 200 | **100%** |
-| Fibonacci† | 5 | 39 | **100%** |
-| Division† | 16 | 91 | **100%** |
-| Square root† | 20 | 61 | **100%** |
-| **Total** | **703** | | **100%** |
+| Program | Cases | Max steps | Accuracy | Notes |
+|---------|-------|-----------|----------|-------|
+| Negate | 201 | 3 | 100% | |
+| Addition | 300 | 4 | 100% | |
+| Countdown (1–20) | 20 | 39 | 100% | |
+| Multiply | 141 | ~33 | **100%** | Single steps in training; full programs never seen |
+| Fibonacci† | 6 | 47 | **100%** | |
+| Division† | 8 | 71 | **87.5%** | div(126,7) fails (gets stuck at 200-step limit) |
+| Square root† | 10 | 61 | **100%** | |
+| Random programs | 100 | 30 | **97%** | |
+| **Total** | **786** | | **99.5%** | |
 
-Longest computation: **126 ÷ 7 = 18**, requiring 91 consecutive correct iterative steps with zero errors.
+Longest correct computation: **isqrt(100) = 10**, requiring 61 consecutive correct steps with zero errors.
 
 ### Scaling: Width > Depth
 

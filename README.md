@@ -72,7 +72,7 @@ python eval.py    # Full 2,087-test suite
 
 ## Round 2: Trained (`round2_trained/`)
 
-A standard transformer **trained from scratch** on random single-step SUBLEQ executions — then it generalizes to run multi-step programs (Fibonacci, multiplication, division, square root) it never saw during training.
+A standard transformer **trained from scratch** on single-step SUBLEQ state transitions — then it generalizes to run multi-step programs (Fibonacci, multiplication, division, square root) it never saw executed as full programs during training.
 
 ### Architecture
 
@@ -104,31 +104,29 @@ A standard transformer **trained from scratch** on random single-step SUBLEQ exe
 
 ### Test Results
 
-**Single-step accuracy** (4,000 held-out states):
+**Single-step accuracy** (3,682 held-out states after filtering halts):
 
 | Instructions | Full accuracy | Changed-position accuracy |
 |---|---|---|
-| 1-6 | 100.0% | 100.0% |
-| 7 | 100.0% | 100.0% |
-| 8 | 99.8% | 100.0% |
-| **Overall** | **99.97%** | **100.0%** |
+| 1-8 (all) | 100.0% | 100.0% |
 
-All errors are copy errors (unchanged cells), never computation errors.
+100% on every instruction count. Zero errors.
 
-**Multi-step programs** (emergent — never in training data):
+**Multi-step programs** (never seen as full program executions during training):
 
-| Program | Cases | Max steps | Accuracy |
-|---------|-------|-----------|----------|
-| Negate | 201 | 3 | 100% |
-| Addition | 300 | 4 | 100% |
-| Countdown | 20 | 39 | 100% |
-| Multiply | 141 | 200 | **100%** |
-| Fibonacci | 5 | 39 | **100%** |
-| Division | 16 | 91 | **100%** |
-| Square root | 20 | 61 | **100%** |
-| **Total** | **703** | | **100%** |
+| Program | Cases | Max steps | Accuracy | Notes |
+|---------|-------|-----------|----------|-------|
+| Negate | 201 | 3 | 100% | |
+| Addition | 300 | 4 | 100% | |
+| Countdown | 20 | 39 | 100% | |
+| Multiply | 141 | ~33 | **100%** | Single steps in training; full programs never seen |
+| Fibonacci | 6 | 47 | **100%** | Never in training data |
+| Division | 8 | 71 | **87.5%** | Never in training data; div(126,7) fails |
+| Square root | 10 | 61 | **100%** | Never in training data |
+| Random programs | 100 | 30 | **97%** | |
+| **Total** | **786** | | **99.5%** | |
 
-The longest computation: 126 ÷ 7 = 18, requiring **91 consecutive correct iterative steps** with zero errors.
+The longest correct computation: isqrt(100) = 10, requiring **61 consecutive correct steps** with zero errors.
 
 ### Usage
 
@@ -194,11 +192,11 @@ subleq-transformer/
 - Selective memory writes require 2 FFN layers (hat function → MUX), explaining why 4 layers are needed
 - Only ~100 of 2.1M weights are nonzero — the rest are structural zeros
 
-**Round 2** shows that a transformer *learns* to implement a computer from data — trained only on single-step execution, it discovers how to chain steps into arbitrary-length programs. The emergent multi-step generalization includes:
-- Fibonacci sequences (up to F(11) = 89, 47 steps)
-- Full 12×12 multiplication table (141 test cases)
-- Integer division and square root
-- The longest: 126 ÷ 7 = 18, requiring 91 consecutive correct iterative steps
+**Round 2** shows that a transformer *learns* to implement a computer from data — trained only on single-step transitions, it discovers how to chain steps into arbitrary-length programs. The emergent multi-step generalization includes:
+- Fibonacci sequences (up to F(13) = 127, 47 steps) — never in training data
+- Full 12×12 multiplication table (141/141 correct)
+- Integer division (7/8 correct) and square root (10/10 correct) — never in training data
+- 782/786 multi-step test instances correct overall (99.5%)
 
 **Width > Depth**: The wide model (d=256, 6 layers, 4.9M params) achieves 100% while a deep model (d=128, 12 layers, 2.4M params) plateaus at 74.8%. Information routing bandwidth (d_head) is the bottleneck, not computational depth.
 
@@ -207,6 +205,6 @@ subleq-transformer/
 ```bibtex
 @misc{subleq-transformer,
   title={A Transformer That Executes a One-Instruction Computer},
-  year={2025}
+  year={2026}
 }
 ```
